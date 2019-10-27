@@ -1,0 +1,42 @@
+import itertools
+import math
+import random 
+import numpy as np
+import scipy as sp
+import seaborn as sns
+import matplotlib.pyplot as plt
+from numpy import linalg as LA
+from scipy.special import comb
+
+def sample_spherical(npoints, ndim):#sample points on the sphere
+    vec = np.random.randn(ndim, npoints)
+    vec /= np.linalg.norm(vec, axis=0)
+    return vec
+def harmonic_eigespcDim(d,l):#spherical harmonics dimensions
+    return comb(l+d-1,l)-comb(l+d-3,l-2)
+def cluster_esp1(eigvals, dim_esp1):#cluster algorithm
+    actualpoint=0
+    gap=0
+    for i in range(1,len(eigvals)-dim_esp1-1):
+        vi=np.abs(eigvals[i]-eigvals[i-1])
+        vii=np.abs(eigvals[i+dim_esp1]-eigvals[i+dim_esp1-1])
+        g=min(vi,vii)
+        if g>=gap:
+            gap=g
+            actualpoint=i
+    if np.abs(eigvals[len(eigvals)-dim_esp1]-eigvals[len(eigvals)-dim_esp1-1])>=gap:
+        gap=g
+        actualpoint=len(eigvals)-dim_esp1
+    return [actualpoint,gap]
+def estimator_Gram(arrayEigvec,dimEigspc,firsteig):
+    rr=np.zeros((len(arrayEigvec[:,0]),len(arrayEigvec[:,0])))
+    if dimEigspc+firsteig<len(arrayEigvec[:,0]):
+        for i in range(firsteig,dimEigspc+firsteig):
+            rr=rr+np.outer(arrayEigvec[:,i],arrayEigvec[:,i])
+    return rr
+@np.vectorize
+def funcexample1(x):#classic angular RGG
+    y=0
+    if x>=0:
+        y=1
+    return y 
